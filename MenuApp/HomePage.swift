@@ -23,12 +23,14 @@ class HomePage: UIViewController {
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
        //  Collection View Layout
         let layout = UICollectionViewFlowLayout()
-        let cellWidth = (UIScreen.main.bounds.width / 2) - 40
+        let cellWidth = (UIScreen.main.bounds.width / 2) - 30
         let cellHeight = UIScreen.main.bounds.height * 0.3 // 30% of screen width
         layout.itemSize = CGSize(width: cellWidth, height: cellHeight)
-        layout.minimumLineSpacing = 0
+        layout.minimumLineSpacing = 15
         layout.minimumInteritemSpacing = 0
+
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.backgroundColor = .lightGray
         
     
        
@@ -49,13 +51,22 @@ class HomePage: UIViewController {
     
     private func setupUI() {
         title = "Choose Your Menu"
-        view.backgroundColor = .gray
+        view.backgroundColor = .lightGray
         
         // Search Bar
         searchBar.delegate = self
         searchBar.placeholder = "Search for meals"
         searchBar.translatesAutoresizingMaskIntoConstraints = false
+        searchBar.searchTextField.backgroundColor = .white
+        searchBar.searchBarStyle = .minimal
+        
         view.addSubview(searchBar)
+//        // Make the search field background clear as well
+//           if let searchTextField = searchBar.value(forKey: "searchField") as? UITextField {
+//               searchTextField.backgroundColor = .clear
+//               searchTextField.leftView = nil // Optional: Remove the left padding
+//               searchTextField.rightView = nil // Optional: Remove the right padding
+//           }
         
         // Quick Filter
         quickFilterScrollView.showsHorizontalScrollIndicator = false
@@ -92,8 +103,8 @@ class HomePage: UIViewController {
             quickFilterStackView.centerYAnchor.constraint(equalTo: quickFilterScrollView.centerYAnchor),
             
             collectionView.topAnchor.constraint(equalTo: quickFilterScrollView.bottomAnchor, constant: 16),
-            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
             collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
@@ -169,22 +180,6 @@ extension HomePage: UICollectionViewDataSource, UICollectionViewDelegate {
         cell.configure(with: mealData[indexPath.item])
         return cell
     }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let numberOfItemsPerRow: CGFloat = 2  // Two items per row
-        let spacingBetweenCells: CGFloat = 16 // Space between items
-        
-        // Total spacing between cells in a row (left padding + right padding + spacing between items)
-        let totalSpacing = (numberOfItemsPerRow + 1) * spacingBetweenCells
-        
-        // Calculate the width of each cell dynamically based on the collection view's width
-        let cellWidth = (collectionView.bounds.width - totalSpacing) / numberOfItemsPerRow
-        
-        // Cell height is set to 30% of screen height
-        let cellHeight = UIScreen.main.bounds.height * 0.3
-        
-        return CGSize(width: cellWidth, height: cellHeight)
-    }
 }
 
 // MARK: - SearchBar Delegate
@@ -211,6 +206,15 @@ class MealCell: UICollectionViewCell {
     }
     
     private func setupUI() {
+        // Set border and corner radius for the cell
+        layer.borderColor = UIColor.lightGray.cgColor
+        layer.borderWidth = 1.0
+        layer.cornerRadius = 12.0
+        layer.masksToBounds = true
+        
+        // Set background color
+        backgroundColor = UIColor.white
+        
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
         imageView.translatesAutoresizingMaskIntoConstraints = false
@@ -230,7 +234,7 @@ class MealCell: UICollectionViewCell {
             imageView.topAnchor.constraint(equalTo: topAnchor),
             imageView.leadingAnchor.constraint(equalTo: leadingAnchor),
             imageView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            imageView.heightAnchor.constraint(equalTo: heightAnchor, multiplier: 0.6),
+            imageView.heightAnchor.constraint(equalTo: heightAnchor, multiplier: 0.7),
             
             titleLabel.topAnchor.constraint(equalTo: imageView.bottomAnchor, constant: 8),
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
