@@ -18,15 +18,20 @@ class HomePage: UIViewController {
     private var selectedFilters: Set<String> = []
     
     // API Endpoint
-    private let apiURL = "https://www.themealdb.com/api/json/v1/1/search.php?s=chicken"
+    private let apiURL = "https://www.themealdb.com/api/json/v1/1/search.php?"
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
-        // Collection View Layout
+       //  Collection View Layout
         let layout = UICollectionViewFlowLayout()
-        layout.itemSize = CGSize(width: UIScreen.main.bounds.width / 2 - 16, height: 200)
-        layout.minimumLineSpacing = 16
-        layout.minimumInteritemSpacing = 8
+        let cellWidth = (UIScreen.main.bounds.width / 2) - 40
+        let cellHeight = UIScreen.main.bounds.height * 0.3 // 30% of screen width
+        layout.itemSize = CGSize(width: cellWidth, height: cellHeight)
+        layout.minimumLineSpacing = 0
+        layout.minimumInteritemSpacing = 0
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        
+    
+       
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
     }
     
@@ -43,112 +48,112 @@ class HomePage: UIViewController {
     }
     
     private func setupUI() {
-           title = "Choose Your Menu"
-           view.backgroundColor = .white
-           
-           // Search Bar
-           searchBar.delegate = self
-           searchBar.placeholder = "Search for meals"
-           searchBar.translatesAutoresizingMaskIntoConstraints = false
-           view.addSubview(searchBar)
-           
-           // Quick Filter
-           quickFilterScrollView.showsHorizontalScrollIndicator = false
-           quickFilterScrollView.translatesAutoresizingMaskIntoConstraints = false
-           view.addSubview(quickFilterScrollView)
-           
-           quickFilterStackView.axis = .horizontal
-           quickFilterStackView.spacing = 8
-           quickFilterStackView.translatesAutoresizingMaskIntoConstraints = false
-           quickFilterScrollView.addSubview(quickFilterStackView)
-           
-           // Collection View
-           collectionView.delegate = self
-           collectionView.dataSource = self
-           collectionView.register(MealCell.self, forCellWithReuseIdentifier: "MealCell")
-           collectionView.translatesAutoresizingMaskIntoConstraints = false
-           view.addSubview(collectionView)
-       }
+        title = "Choose Your Menu"
+        view.backgroundColor = .gray
+        
+        // Search Bar
+        searchBar.delegate = self
+        searchBar.placeholder = "Search for meals"
+        searchBar.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(searchBar)
+        
+        // Quick Filter
+        quickFilterScrollView.showsHorizontalScrollIndicator = false
+        quickFilterScrollView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(quickFilterScrollView)
+        
+        quickFilterStackView.axis = .horizontal
+        quickFilterStackView.spacing = 8
+        quickFilterStackView.translatesAutoresizingMaskIntoConstraints = false
+        quickFilterScrollView.addSubview(quickFilterStackView)
+        
+        // Collection View
+        collectionView.delegate = self
+        collectionView.dataSource = self
+        collectionView.register(MealCell.self, forCellWithReuseIdentifier: "MealCell")
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(collectionView)
+    }
     
     // MARK: - Setup Constraints
-       private func setupConstraints() {
-           NSLayoutConstraint.activate([
-               searchBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-               searchBar.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-               searchBar.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-               
-               quickFilterScrollView.topAnchor.constraint(equalTo: searchBar.bottomAnchor, constant: 8),
-               quickFilterScrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-               quickFilterScrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-               quickFilterScrollView.heightAnchor.constraint(equalToConstant: 40),
-               
-               quickFilterStackView.leadingAnchor.constraint(equalTo: quickFilterScrollView.leadingAnchor, constant: 16),
-               quickFilterStackView.trailingAnchor.constraint(equalTo: quickFilterScrollView.trailingAnchor, constant: -16),
-               quickFilterStackView.centerYAnchor.constraint(equalTo: quickFilterScrollView.centerYAnchor),
-               
-               collectionView.topAnchor.constraint(equalTo: quickFilterScrollView.bottomAnchor, constant: 16),
-               collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-               collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-               collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-           ])
-       }
+    private func setupConstraints() {
+        NSLayoutConstraint.activate([
+            searchBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            searchBar.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            searchBar.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            
+            quickFilterScrollView.topAnchor.constraint(equalTo: searchBar.bottomAnchor, constant: 8),
+            quickFilterScrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            quickFilterScrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            quickFilterScrollView.heightAnchor.constraint(equalToConstant: 40),
+            
+            quickFilterStackView.leadingAnchor.constraint(equalTo: quickFilterScrollView.leadingAnchor, constant: 16),
+            quickFilterStackView.trailingAnchor.constraint(equalTo: quickFilterScrollView.trailingAnchor, constant: -16),
+            quickFilterStackView.centerYAnchor.constraint(equalTo: quickFilterScrollView.centerYAnchor),
+            
+            collectionView.topAnchor.constraint(equalTo: quickFilterScrollView.bottomAnchor, constant: 16),
+            collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+    }
     
     // MARK: - Fetch API
-        private func fetchMeals(keyword: String?) {
-            var urlComponents = URLComponents(string: apiURL)
-            urlComponents?.queryItems = [
-                URLQueryItem(name: "s", value: keyword ?? "")
-            ]
+    private func fetchMeals(keyword: String?) {
+        var urlComponents = URLComponents(string: apiURL)
+        urlComponents?.queryItems = [
+            URLQueryItem(name: "s", value: keyword ?? "")
+        ]
+        
+        guard let url = urlComponents?.url else { return }
+        
+        URLSession.shared.dataTask(with: url) { [weak self] data, _, error in
+            guard let self = self, let data = data, error == nil else { return }
             
-            guard let url = urlComponents?.url else { return }
-            
-            URLSession.shared.dataTask(with: url) { [weak self] data, _, error in
-                guard let self = self, let data = data, error == nil else { return }
-                
-                do {
-                    let response = try JSONDecoder().decode(MealResponse.self, from: data)
-                    DispatchQueue.main.async {
-                        self.mealData = response.meals ?? []
-                        self.updateQuickFilters()
-                        self.collectionView.reloadData()
-                    }
-                } catch {
-                    print("Failed to decode JSON: \(error)")
+            do {
+                let response = try JSONDecoder().decode(MealResponse.self, from: data)
+                DispatchQueue.main.async {
+                    self.mealData = response.meals ?? []
+                    self.updateQuickFilters()
+                    self.collectionView.reloadData()
                 }
-            }.resume()
-        }
+            } catch {
+                print("Failed to decode JSON: \(error)")
+            }
+        }.resume()
+    }
     
     private func updateQuickFilters() {
-            let areas = Set(mealData.compactMap { $0.strArea })
-            quickFilterStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
-            
-            for area in areas {
-                let button = UIButton(type: .system)
-                button.setTitle(area, for: .normal)
-                button.setTitleColor(.white, for: .normal)
-                button.backgroundColor = .systemBlue
-                button.layer.cornerRadius = 8
-                button.clipsToBounds = true
-                button.addTarget(self, action: #selector(filterTapped(_:)), for: .touchUpInside)
-                quickFilterStackView.addArrangedSubview(button)
-            }
+        let areas = Set(mealData.compactMap { $0.strArea })
+        quickFilterStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        
+        for area in areas {
+            let button = UIButton(type: .system)
+            button.setTitle(area, for: .normal)
+            button.setTitleColor(.white, for: .normal)
+            button.backgroundColor = .systemBlue
+            button.layer.cornerRadius = 8
+            button.clipsToBounds = true
+            button.addTarget(self, action: #selector(filterTapped(_:)), for: .touchUpInside)
+            quickFilterStackView.addArrangedSubview(button)
         }
+    }
     
     @objc private func filterTapped(_ sender: UIButton) {
-            guard let filter = sender.titleLabel?.text else { return }
-            
-            if selectedFilters.contains(filter) {
-                selectedFilters.remove(filter)
-                sender.backgroundColor = .systemBlue
-            } else {
-                selectedFilters.insert(filter)
-                sender.backgroundColor = .systemGreen
-            }
-            
-            let filteredData = mealData.filter { selectedFilters.isEmpty || selectedFilters.contains($0.strArea ?? "") }
-            mealData = filteredData
-            collectionView.reloadData()
+        guard let filter = sender.titleLabel?.text else { return }
+        
+        if selectedFilters.contains(filter) {
+            selectedFilters.remove(filter)
+            sender.backgroundColor = .systemBlue
+        } else {
+            selectedFilters.insert(filter)
+            sender.backgroundColor = .systemGreen
         }
+        
+        let filteredData = mealData.filter { selectedFilters.isEmpty || selectedFilters.contains($0.strArea ?? "") }
+        mealData = filteredData
+        collectionView.reloadData()
+    }
 }
 
 // MARK: - UICollectionViewDataSource & Delegate
@@ -163,6 +168,22 @@ extension HomePage: UICollectionViewDataSource, UICollectionViewDelegate {
         }
         cell.configure(with: mealData[indexPath.item])
         return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let numberOfItemsPerRow: CGFloat = 2  // Two items per row
+        let spacingBetweenCells: CGFloat = 16 // Space between items
+        
+        // Total spacing between cells in a row (left padding + right padding + spacing between items)
+        let totalSpacing = (numberOfItemsPerRow + 1) * spacingBetweenCells
+        
+        // Calculate the width of each cell dynamically based on the collection view's width
+        let cellWidth = (collectionView.bounds.width - totalSpacing) / numberOfItemsPerRow
+        
+        // Cell height is set to 30% of screen height
+        let cellHeight = UIScreen.main.bounds.height * 0.3
+        
+        return CGSize(width: cellWidth, height: cellHeight)
     }
 }
 
