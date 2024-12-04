@@ -33,9 +33,7 @@ class HomePage: UIViewController {
 
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .lightGray
-        
-    
-       
+     
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
     }
     
@@ -63,7 +61,6 @@ class HomePage: UIViewController {
         searchBar.searchBarStyle = .minimal
         view.addSubview(searchBar)
 
-        
         // Quick Filter
         quickFilterScrollView.showsHorizontalScrollIndicator = false
         quickFilterScrollView.translatesAutoresizingMaskIntoConstraints = false
@@ -118,8 +115,7 @@ class HomePage: UIViewController {
     
     // MARK: - Fetch API
     private func fetchMeals(keyword: String?) {
-        print("keyword: \(keyword)")
-        guard let keyword = keyword, !keyword.isEmpty, !(keyword == "") else {
+        guard let keyword = keyword, !keyword.isEmpty else {
             mealData = []
             allMealData = []
             collectionView.reloadData()
@@ -129,7 +125,7 @@ class HomePage: UIViewController {
 
         var urlComponents = URLComponents(string: apiURL)
         urlComponents?.queryItems = [
-            URLQueryItem(name: "s", value: keyword ?? "")
+            URLQueryItem(name: "s", value: keyword)
         ]
         
         guard let url = urlComponents?.url else { return }
@@ -145,7 +141,7 @@ class HomePage: UIViewController {
                     self.updateQuickFilters()
                     self.collectionView.reloadData()
                     
-                    if self.allMealData.count > 0 {
+                    if self.allMealData.isEmpty {
                         self.emptyStateLabel.isHidden = true
                     } else {
                         self.emptyStateLabel.isHidden = false
@@ -170,7 +166,7 @@ class HomePage: UIViewController {
             button.clipsToBounds = true
             
             // Add padding to the button
-            button.contentEdgeInsets = UIEdgeInsets(top: 8, left: 12, bottom: 8, right: 12)
+            button.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 12)
             
             button.addTarget(self, action: #selector(filterTapped(_:)), for: .touchUpInside)
             quickFilterStackView.addArrangedSubview(button)
@@ -296,4 +292,3 @@ class MealCell: UICollectionViewCell {
         }
     }
 }
-

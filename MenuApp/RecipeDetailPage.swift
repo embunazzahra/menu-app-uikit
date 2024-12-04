@@ -17,8 +17,6 @@ class RecipeDetailPage: UIViewController {
     
     private let scrollView = UIScrollView()
     private let contentView = UIView()
-    
-    
     private let titleLabel = UILabel()
     private let recipeImageView = UIImageView()
     private let cuisineLabel = UILabel()
@@ -97,8 +95,7 @@ class RecipeDetailPage: UIViewController {
             stackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             stackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             stackView.bottomAnchor.constraint(lessThanOrEqualTo: contentView.bottomAnchor, constant: -16),
-            
-            recipeImageView.heightAnchor.constraint(equalTo: recipeImageView.widthAnchor, multiplier: 9/16),
+            recipeImageView.heightAnchor.constraint(equalTo: recipeImageView.widthAnchor, multiplier: 9/16)
         ])
     }
     
@@ -116,7 +113,6 @@ class RecipeDetailPage: UIViewController {
         return button
     }
 
-    
     private func configureMealDetails() {
         titleLabel.text = meal.strMeal
         titleLabel.font = UIFont.systemFont(ofSize: 24, weight: .bold)
@@ -187,9 +183,7 @@ class RecipeDetailPage: UIViewController {
         return ingredients.joined(separator: "\n")
     }
 
-    
     // MARK: - Actions
-    
     @objc private func handleBack() {
         dismiss(animated: true, completion: nil)
     }
