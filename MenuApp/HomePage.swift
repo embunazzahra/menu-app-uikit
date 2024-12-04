@@ -14,8 +14,10 @@ class HomePage: UIViewController {
     private let quickFilterStackView = UIStackView()
     private let collectionView: UICollectionView
     
-    private var mealData: [Meal] = []
+    private var mealData: [Meal] = [] // filtered data
+    private var allMealData: [Meal] = [] // unfiltered data
     private var selectedFilters: Set<String> = []
+    private var emptyStateLabel = UILabel()
     
     // API Endpoint
     private let apiURL = "https://www.themealdb.com/api/json/v1/1/search.php?"
@@ -78,6 +80,14 @@ class HomePage: UIViewController {
         collectionView.register(MealCell.self, forCellWithReuseIdentifier: "MealCell")
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(collectionView)
+        
+        emptyStateLabel.text = "No meals available. Please enter a keyword to search."
+        emptyStateLabel.textAlignment = .center
+        emptyStateLabel.textColor = .darkGray
+        emptyStateLabel.translatesAutoresizingMaskIntoConstraints = false
+        emptyStateLabel.isHidden = true  // Initially hidden
+        emptyStateLabel.numberOfLines = 0
+        view.addSubview(emptyStateLabel)
     }
     
     // MARK: - Setup Constraints
@@ -99,12 +109,24 @@ class HomePage: UIViewController {
             collectionView.topAnchor.constraint(equalTo: quickFilterScrollView.bottomAnchor, constant: 16),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+            collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            emptyStateLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            emptyStateLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            emptyStateLabel.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.6)
         ])
     }
     
     // MARK: - Fetch API
     private func fetchMeals(keyword: String?) {
+        print("keyword: \(keyword)")
+        guard let keyword = keyword, !keyword.isEmpty, !(keyword == "") else {
+            mealData = []
+            allMealData = []
+            collectionView.reloadData()
+            emptyStateLabel.isHidden = false
+            return
+        }
+
         var urlComponents = URLComponents(string: apiURL)
         urlComponents?.queryItems = [
             URLQueryItem(name: "s", value: keyword ?? "")
@@ -118,9 +140,16 @@ class HomePage: UIViewController {
             do {
                 let response = try JSONDecoder().decode(MealResponse.self, from: data)
                 DispatchQueue.main.async {
-                    self.mealData = response.meals ?? []
+                    self.allMealData = response.meals ?? []
+                    self.mealData = self.allMealData
                     self.updateQuickFilters()
                     self.collectionView.reloadData()
+                    
+                    if self.allMealData.count > 0 {
+                        self.emptyStateLabel.isHidden = true
+                    } else {
+                        self.emptyStateLabel.isHidden = false
+                    }
                 }
             } catch {
                 print("Failed to decode JSON: \(error)")
@@ -136,9 +165,13 @@ class HomePage: UIViewController {
             let button = UIButton(type: .system)
             button.setTitle(area, for: .normal)
             button.setTitleColor(.white, for: .normal)
-            button.backgroundColor = .systemBlue
+            button.backgroundColor = .gray
             button.layer.cornerRadius = 8
             button.clipsToBounds = true
+            
+            // Add padding to the button
+            button.contentEdgeInsets = UIEdgeInsets(top: 8, left: 12, bottom: 8, right: 12)
+            
             button.addTarget(self, action: #selector(filterTapped(_:)), for: .touchUpInside)
             quickFilterStackView.addArrangedSubview(button)
         }
@@ -149,13 +182,15 @@ class HomePage: UIViewController {
         
         if selectedFilters.contains(filter) {
             selectedFilters.remove(filter)
-            sender.backgroundColor = .systemBlue
+            sender.backgroundColor = .gray
         } else {
             selectedFilters.insert(filter)
-            sender.backgroundColor = .systemGreen
+            sender.backgroundColor = .darkGray
         }
         
-        let filteredData = mealData.filter { selectedFilters.isEmpty || selectedFilters.contains($0.strArea ?? "") }
+        let filteredData = selectedFilters.isEmpty ?
+        allMealData : allMealData.filter { selectedFilters.contains($0.strArea ?? "") }
+        
         mealData = filteredData
         collectionView.reloadData()
     }
