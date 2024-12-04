@@ -59,14 +59,8 @@ class HomePage: UIViewController {
         searchBar.translatesAutoresizingMaskIntoConstraints = false
         searchBar.searchTextField.backgroundColor = .white
         searchBar.searchBarStyle = .minimal
-        
         view.addSubview(searchBar)
-//        // Make the search field background clear as well
-//           if let searchTextField = searchBar.value(forKey: "searchField") as? UITextField {
-//               searchTextField.backgroundColor = .clear
-//               searchTextField.leftView = nil // Optional: Remove the left padding
-//               searchTextField.rightView = nil // Optional: Remove the right padding
-//           }
+
         
         // Quick Filter
         quickFilterScrollView.showsHorizontalScrollIndicator = false
@@ -179,6 +173,12 @@ extension HomePage: UICollectionViewDataSource, UICollectionViewDelegate {
         }
         cell.configure(with: mealData[indexPath.item])
         return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let selectedMeal = mealData[indexPath.item]
+        let detailPage = RecipeDetailPage(meal: selectedMeal)
+        navigationController?.pushViewController(detailPage, animated: true)
     }
 }
 
